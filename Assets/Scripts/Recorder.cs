@@ -1,26 +1,55 @@
-﻿using UnityEditor.Media;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEditor.Media;
 using Unity.Collections;
-using System.IO;
 
+//録画機能については一旦保留
 public class Recorder: MonoBehaviour
 {
     private MediaEncoder mediaEncoder;
-    private NativeArray<float> audioBuffer;
+    private bool isRecording;
+    private float[] audioData;
+    private Queue<Texture2D> textures;
+
     [SerializeField] private RenderTexture recordTexture;
+
+    private void Awake()
+    {
+        isRecording = false;
+        textures = new Queue<Texture2D>();
+    }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R)) 
+        {
+            if (isRecording) 
+            {
+                EndRecord();
+            }
+            else
+            {
+                StartRecord();
+            }
+        }
+
+        if(textures.Count > 0)
+        {
+            mediaEncoder.AddFrame(textures.Dequeue());
+        }
     }
 
-    public void RecordMovie()
+    public void StartRecord()
     {
         var videoAttr = new VideoTrackAttributes
         {
-            frameRate = new MediaRational(50),
-            width = 320,
-            height = 200,
+            frameRate = new MediaRational(30),
+            width = (uint) recordTexture.width,
+            height = (uint) recordTexture.height,
             includeAlpha = false
         };
 
@@ -31,25 +60,72 @@ public class Recorder: MonoBehaviour
             language = "jp"
         };
 
-        int sampleFramesPerVideoFrame = audioAttr.channelCount *
-            audioAttr.sampleRate.numerator / videoAttr.frameRate.numerator;
+        var time = DateTime.Now;
 
-        var encodedFilePath = Path.Combine(Path.GetTempPath(), "my_movie.mp4");
-
-        Texture2D tex = new Texture2D((int)videoAttr.width, (int)videoAttr.height, TextureFormat.RGBA32, false);
+        var encodedFilePath = Path.Combine(Path.GetTempPath(), time.Year.ToString() + time.Month.ToString() + time.Day.ToString() + time.Hour.ToString() + time.Minute.ToString() + time.Second.ToString() + ".mp4");
+        Debug.Log(encodedFilePath);
 
         mediaEncoder = new MediaEncoder(encodedFilePath, videoAttr, audioAttr);
-        audioBuffer = new NativeArray<float>(sampleFramesPerVideoFrame, Allocator.Temp);
+        isRecording = true;
+        StartCoroutine(Record());
     }
 
-    public async void AddData() 
+    public void EndRecord() 
     {
-        var request = AsyncGPUReadback.Request(recordTexture);
-        while (!request.done) 
+        isRecording = false;
+        StartCoroutine(StopRecord());
+    }
+
+    private IEnumerator StopRecord()
+    {
+        while (textures.Count > 0)
         {
-            
+            yield return new WaitForEndOfFrame();
         }
-        //mediaEncoder.AddFrame();
-        //mediaEncoder.AddSamples(audioBuffer);
+        Debug.Log("Fin record");
+
+        mediaEncoder.Dispose();
+
+    }
+
+    private void OnAudioFilterRead(float[] data, int channels)
+    {
+        if (!isRecording) return;
+        audioData = data;
+    }
+
+    private IEnumerator Record() 
+    {
+        while (audioData == null)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        Debug.Log("check");
+        while(isRecording)
+        {
+            AsyncGPUReadback.Request(recordTexture, 0, OnRequestComplete);
+            //var audioBuffer = new NativeArray<float>(audioData, Allocator.Temp);
+            //mediaEncoder.AddSamples(audioBuffer);
+            //audioBuffer.Dispose();
+
+            yield return new WaitForSecondsRealtime(1 / 30);
+        }
+    }
+
+    private void OnRequestComplete(AsyncGPUReadbackRequest request)
+    {
+        if (request.hasError)
+        {
+            Debug.Log("GPU readback error detected.");
+        }
+        else
+        {
+            Debug.Log("no error");
+            var buffer = request.GetData<Color32>();
+            var tempTexture = new Texture2D(recordTexture.width, recordTexture.height, TextureFormat.RGBA32, false);
+            tempTexture.LoadRawTextureData(buffer);
+            tempTexture.Apply();
+            textures.Enqueue(tempTexture);
+        }
     }
 }
