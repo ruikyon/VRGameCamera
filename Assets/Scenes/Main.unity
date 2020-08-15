@@ -621,9 +621,8 @@ GameObject:
   - component: {fileID: 2022055223}
   - component: {fileID: 2022055222}
   - component: {fileID: 2022055221}
-  - component: {fileID: 2022055224}
   m_Layer: 0
-  m_Name: Recorder
+  m_Name: VRGameCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -636,7 +635,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2022055220}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &2022055222
 Camera:
   m_ObjectHideFlags: 0
@@ -694,19 +693,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2022055224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2022055220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a7e32050d36b044eb34c4f83c4dc4b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  recordTexture: {fileID: 8400000, guid: 9aa88504037fd0542b39324f8295607b, type: 2}
 --- !u!1 &2103865422
 GameObject:
   m_ObjectHideFlags: 0
