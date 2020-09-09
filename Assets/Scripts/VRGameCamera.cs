@@ -15,6 +15,7 @@ public class VRGameCamera : MonoBehaviour
     [SerializeField] private Vector3 frontPosition;
 
     [SerializeField] private Transform target;
+    [SerializeField] private Transform hand;
     [SerializeField] private GameObject cameraUI;
     [SerializeField] private float maxSpeed;
     private Camera cameraEntity;
@@ -53,6 +54,19 @@ public class VRGameCamera : MonoBehaviour
             cameraEntity.gameObject.SetActive(isShow);
         }
 
+        // state: 3
+        if (state == CameraPosition.Hand)
+        {
+            transform.position = Vector3.Lerp(transform.position, hand.position, Time.deltaTime);
+
+            // rot
+            var handDeg = hand.eulerAngles;
+            handDeg.z = 0;
+            transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, handDeg, Time.deltaTime);
+
+            return;
+        }
+
         // TODO
         //  以下は仮で、高速に移動した場合のことも検討した方がよさそう
         //  あと高さは調整したさそうな気がするので、offset足すとかする
@@ -62,6 +76,15 @@ public class VRGameCamera : MonoBehaviour
         var from = transform.position;
         from.y = 1;
         transform.position = Vector3.Lerp(from, to, Time.deltaTime);
+
+        // rot
+        var sub = target.eulerAngles.y - transform.eulerAngles.y;
+        if (Mathf.Abs(sub) > 180)
+        {
+            sub =(Mathf.Abs(sub) - 360) * Mathf.Sign(sub);
+        }
+        var deg = transform.eulerAngles.y + sub * Time.deltaTime;
+        transform.eulerAngles = Vector3.up * deg;
     }
 
     public void NextState() 
@@ -76,16 +99,75 @@ public class VRGameCamera : MonoBehaviour
             case CameraPosition.Back:
                 cameraEntity.transform.localPosition = backPosition;
                 cameraEntity.transform.LookAt(transform);
+                SetTargetPosition();
                 break;
             case CameraPosition.Front:
                 cameraEntity.transform.localPosition = frontPosition;
                 cameraEntity.transform.LookAt(transform);
+                SetTargetPosition();
                 break;
             case CameraPosition.Hand:
-                Debug.Log("hand");
+                cameraEntity.transform.localPosition = Vector3.zero;
+                cameraEntity.transform.localEulerAngles = Vector3.zero;
+                SetHandPosition();
                 break;        
         }
 
         state = position;
+    }
+
+    private void SetHandPosition ()
+    {
+        transform.position = hand.position;
+        var temp = hand.eulerAngles;
+        temp.z = 0;
+        transform.eulerAngles = temp;
+    }
+
+    private void SetTargetPosition ()
+    {
+        var tempPos = target.position;
+        tempPos.y = 1;
+        transform.position = tempPos;
+
+        transform.eulerAngles = Vector3.up * target.eulerAngles.y;
+    }
+
+    public void ChangeDistance (float value) 
+    {
+        switch (state)
+        {
+            case CameraPosition.Back:
+                cameraEntity.transform.localPosition = backPosition;
+                cameraEntity.transform.LookAt(transform);
+                SetTargetPosition();
+                break;
+            case CameraPosition.Front:
+                cameraEntity.transform.localPosition = frontPosition;
+                cameraEntity.transform.LookAt(transform);
+                SetTargetPosition();
+                break;
+            case CameraPosition.Hand:
+                break;
+        }
+    }
+
+    public void ChangeDegree (float value)
+    {
+        switch (state)
+        {
+            case CameraPosition.Back:
+                cameraEntity.transform.localPosition = backPosition;
+                cameraEntity.transform.LookAt(transform);
+                SetTargetPosition();
+                break;
+            case CameraPosition.Front:
+                cameraEntity.transform.localPosition = frontPosition;
+                cameraEntity.transform.LookAt(transform);
+                SetTargetPosition();
+                break;
+            case CameraPosition.Hand:
+                break;
+        }
     }
 }
