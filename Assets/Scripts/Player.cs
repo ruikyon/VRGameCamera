@@ -44,7 +44,7 @@ public class Player : MonoBehaviour
         transform.position = pos;
     }
 
-    private void SetHeightOffset ()
+    public void SetHeightOffset ()
     {
         var sub = heightOffset - head.position.y;
         var rigpos = rig.position;

@@ -61,9 +61,9 @@ public class VRGameCamera : MonoBehaviour
 
             // rot
             var handDeg = hand.eulerAngles;
-            handDeg.z = 0;
-            transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, handDeg, Time.deltaTime);
-
+            //handDeg.z = 0;
+            //transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, handDeg, Time.deltaTime);
+            transform.eulerAngles = hand.eulerAngles;
             return;
         }
 
