@@ -18,6 +18,7 @@ public class VRGameCamera : MonoBehaviour
     [SerializeField] private Transform hand;
     [SerializeField] private GameObject cameraUI;
     [SerializeField] private float maxSpeed;
+    [SerializeField] private float heightOffset;
     private Camera cameraEntity;
     private CameraPosition state;
     private bool isShow;
@@ -68,13 +69,11 @@ public class VRGameCamera : MonoBehaviour
         }
 
         // TODO
-        //  以下は仮で、高速に移動した場合のことも検討した方がよさそう
+        //  高速いどうについては要検討
         //  あと高さは調整したさそうな気がするので、offset足すとかする
-        //transform.position = new Vector3(target.position.x, 1, target.position.z);
         var to = target.position;
-        to.y = 1;
+        to.y += heightOffset;
         var from = transform.position;
-        from.y = 1;
         transform.position = Vector3.Lerp(from, to, Time.deltaTime);
 
         // rot
