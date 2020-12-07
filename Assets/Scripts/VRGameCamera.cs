@@ -11,6 +11,8 @@ public class VRGameCamera : MonoBehaviour
         Hand,
     }
 
+    public static VRGameCamera Instance { get; private set; }
+
     [SerializeField] private Vector3 backPosition;
     [SerializeField] private Vector3 frontPosition;
 
@@ -25,6 +27,13 @@ public class VRGameCamera : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance)
+        {
+            Debug.LogError("instance already exists");
+            Destroy(gameObject);
+        }
+        Instance = this;
+
         foreach(Transform child in transform)
         {
             if(child.GetComponent<Camera>() != null) 
