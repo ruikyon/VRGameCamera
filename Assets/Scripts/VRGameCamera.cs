@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,16 +12,34 @@ public class VRGameCamera : MonoBehaviour
         Hand,
     }
 
+    [Serializable]
+    public class Range
+    {
+        public float min, max;
+
+        public float getValue(float rate)
+        {
+            if (rate < 0 || rate > 1)
+            {
+                Debug.LogError("invalid rate: " + rate);
+            }
+
+            return min + (max - min) * rate;
+        }
+    }
+
     public static VRGameCamera Instance { get; private set; }
 
     [SerializeField] private Vector3 backPosition;
     [SerializeField] private Vector3 frontPosition;
+    private Vector3 cameraBasePos;
 
     [SerializeField] private Transform target;
     [SerializeField] private Transform hand;
     [SerializeField] private GameObject cameraUI;
     [SerializeField] private float maxSpeed;
-    [SerializeField] private float heightOffset;
+    [SerializeField] private Range heightRange, degRange, distRange;
+    public float heightOffset, degree, distance;
     private Camera cameraEntity;
     private CameraPosition state;
     private bool isShow;
@@ -135,47 +154,50 @@ public class VRGameCamera : MonoBehaviour
     private void SetTargetPosition ()
     {
         var tempPos = target.position;
-        tempPos.y = 1;
+        tempPos.y += heightOffset;
         transform.position = tempPos;
 
         transform.eulerAngles = Vector3.up * target.eulerAngles.y;
     }
 
-    public void ChangeDistance (float value) 
+    public void ResetPosition()
     {
+        backPosition = Quaternion.Euler(degree, 0, 0) * (Vector3.back * distance);
+        frontPosition = Quaternion.Euler(degree, 0, 0) * (Vector3.forward * distance);
+
+        if (state == CameraPosition.Hand)
+        {
+            return;
+        }
+
         switch (state)
         {
             case CameraPosition.Back:
                 cameraEntity.transform.localPosition = backPosition;
                 cameraEntity.transform.LookAt(transform);
-                SetTargetPosition();
                 break;
             case CameraPosition.Front:
                 cameraEntity.transform.localPosition = frontPosition;
                 cameraEntity.transform.LookAt(transform);
-                SetTargetPosition();
-                break;
-            case CameraPosition.Hand:
                 break;
         }
+
     }
 
-    public void ChangeDegree (float value)
+    public void SetHeight(float rate)
     {
-        switch (state)
-        {
-            case CameraPosition.Back:
-                cameraEntity.transform.localPosition = backPosition;
-                cameraEntity.transform.LookAt(transform);
-                SetTargetPosition();
-                break;
-            case CameraPosition.Front:
-                cameraEntity.transform.localPosition = frontPosition;
-                cameraEntity.transform.LookAt(transform);
-                SetTargetPosition();
-                break;
-            case CameraPosition.Hand:
-                break;
-        }
+        heightOffset = heightRange.getValue(rate);
+    }
+
+    public void SetDegree(float rate)
+    {
+        degree = degRange.getValue(rate);
+        ResetPosition();
+    }
+
+    public void SetDistance(float rate)
+    {
+        distance = distRange.getValue(rate);
+        ResetPosition();
     }
 }

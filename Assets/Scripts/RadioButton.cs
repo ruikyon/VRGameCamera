@@ -7,8 +7,24 @@ using UnityEngine.Events;
 
 public class RadioButton : MonoBehaviour
 {
-    public string Value { get; private set; }
+    private string _value;
+    public string Value 
+    {
+        get { return _value; }
+        private set
+        {
+            if (value != null && Array.IndexOf(Labels, value) == -1)
+            {
+                Debug.LogError("invalid value (RadioButton): " + value);
+                return;
+            }
+
+            _value = value;
+            OnChange?.Invoke(_value);
+        }
+    }
     public string[] Labels { get; private set; }
+    public Action<string> OnChange;
 
     private Dictionary<string, Toggle> toggles;
     private bool nullable;
@@ -32,6 +48,9 @@ public class RadioButton : MonoBehaviour
             }
         }
 
+        Labels = labelList.ToArray();
+
+
         if (!nullable)
         {
             defaultValue.isOn = true;
@@ -40,15 +59,13 @@ public class RadioButton : MonoBehaviour
         {
             Value = null;
         }
-
-        Labels = labelList.ToArray();
     }
 
     public UnityAction<bool> ChangeValue(string label)
     {
         return value =>
         {
-            if (!value)
+            if (!value && !nullable)
             {
                 return;
             }

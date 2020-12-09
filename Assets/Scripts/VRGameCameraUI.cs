@@ -6,62 +6,102 @@ using UnityEngine.UI;
 
 public class VRGameCameraUI : MonoBehaviour
 {
-    public enum State
-    {
-        None,
-        Setting,
-        Angle,
-    }
+    private const string MODE_SETTING = "Setting";
+    private const string MODE_ANGLE = "Angle";
 
-    private State currentState;
     [SerializeField] private RadioButton mode, angle;
     [SerializeField] private Slider distance, height, degree;
+    [SerializeField] private RectTransform additionalUI;
+    [SerializeField] private GameObject settingUI, angleUI;
+    private Queue<int> heightTargets;
 
     // 0, 36, 75
 
     private void Awake()
     {
-        ChangeState(State.None);
+        //ChangeState(State.None);
+        mode.OnChange += ChangeState;
+        heightTargets = new Queue<int>();
+
+        // UIとの紐づけ
+        angle.OnChange += ChangeAngle;
+
+        height.onValueChanged.AddListener(value => { VRGameCamera.Instance.SetHeight(value); });
+        degree.onValueChanged.AddListener(value => { VRGameCamera.Instance.SetDegree(value); });
+        distance.onValueChanged.AddListener(value => { VRGameCamera.Instance.SetDistance(value); });
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
+        height.value = 0.5f;
+        degree.value = 0.5f;
+        distance.value = 0.5f;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         // 対象を決めてそちらを向くように
-    }
 
-    public void DebugLog()
-    {
-        Debug.Log("clicked");
-    }
-
-    // for button click
-    public void SelectState (int state)
-    {
-        if (Enum.IsDefined(typeof(State), state)) 
+        if (heightTargets.Count > 0)
         {
-            ChangeState((State)state);
+            var target = heightTargets.Peek();
+            var tmp = additionalUI.sizeDelta;
+
+            tmp.y -= (tmp.y - target) * 0.2f;
+            if (Math.Abs(tmp.y - target) < 2)
+            {
+                tmp.y = target;
+                heightTargets.Dequeue();
+
+                if (target == 0)
+                {
+                    settingUI.SetActive(mode.Value == MODE_SETTING);
+                    angleUI.SetActive(mode.Value == MODE_ANGLE);
+                }
+            }
+
+            additionalUI.sizeDelta = tmp;
         }
     }
 
-    public void ChangeState (State state)
+    public void ChangeState (string state)
     {
         switch (state)
         {
-            case State.None:
+            case null:
+                heightTargets.Enqueue(0);
                 break;
-            case State.Angle:
+            case MODE_ANGLE:
+                heightTargets.Enqueue(0);
+                heightTargets.Enqueue(36);
                 break;
-            case State.Setting:
+            case MODE_SETTING:
+                heightTargets.Enqueue(0);
+                heightTargets.Enqueue(75);
+                break;
+            default:
                 break;
         }
+    }
 
-        currentState = state;
+    public void ChangeAngle (string angle)
+    {
+        if (angle == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var position = (VRGameCamera.CameraPosition)Enum.Parse(typeof(VRGameCamera.CameraPosition), angle);
+            if (Enum.IsDefined(typeof(VRGameCamera.CameraPosition), angle))
+            {
+                VRGameCamera.Instance.SetCameraPosition(position);
+            }
+        }
+        catch (ArgumentException)
+        {
+            Debug.LogError("invalid angle: " + angle);
+        }
     }
 }
