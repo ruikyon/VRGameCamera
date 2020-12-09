@@ -296,11 +296,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 395a7cfcae958c74fa665e9da33b7b66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backPosition: {x: 0, y: 1, z: -4}
-  frontPosition: {x: 0, y: 1, z: 4}
   target: {fileID: 0}
   hand: {fileID: 0}
-  cameraUI: {fileID: 0}
   maxSpeed: 0
   heightRange:
     min: 0.5
@@ -309,8 +306,5 @@ MonoBehaviour:
     min: 10
     max: 40
   distRange:
-    min: 0.5
-    max: 3.5
-  heightOffset: 0
-  degree: 0
-  distance: 0
+    min: 1
+    max: 7

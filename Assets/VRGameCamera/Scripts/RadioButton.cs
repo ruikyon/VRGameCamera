@@ -29,18 +29,18 @@ namespace VRGC
 
         private Dictionary<string, Toggle> toggles;
         private bool nullable;
+
         [SerializeField] private Toggle defaultValue = default;
 
         private void Awake()
         {
-            List<string> labelList = new List<string>();
+            var labelList = new List<string>();
             toggles = new Dictionary<string, Toggle>();
             nullable = defaultValue == null;
 
             foreach (Transform child in transform)
             {
                 var tmp = child.GetComponent<Toggle>();
-                Debug.Log(tmp);
                 if (tmp != null)
                 {
                     labelList.Add(tmp.name);
@@ -50,7 +50,6 @@ namespace VRGC
             }
 
             Labels = labelList.ToArray();
-
 
             if (!nullable)
             {

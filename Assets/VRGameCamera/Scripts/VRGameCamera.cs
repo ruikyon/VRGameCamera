@@ -32,8 +32,11 @@ namespace VRGC
 
         [SerializeField] private Transform target = default;
         [SerializeField] private Transform hand = default;
+
+        [Space(10)]
         [SerializeField] private float maxSpeed = default;
         [SerializeField] private Range heightRange = default, degRange = default, distRange = default;
+
         private float heightOffset, degree, distance;
         private Camera cameraEntity;
         private CameraPosition state;

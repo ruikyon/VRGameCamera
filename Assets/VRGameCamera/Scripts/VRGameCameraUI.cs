@@ -14,6 +14,7 @@ namespace VRGC
         [SerializeField] private Slider distance = default, height = default, degree = default;
         [SerializeField] private RectTransform additionalUI = default;
         [SerializeField] private GameObject settingUI = default, angleUI = default;
+
         private Queue<int> heightTargets;
 
         private void Awake()
