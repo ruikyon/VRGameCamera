@@ -21,11 +21,11 @@ namespace VRGC
                 }
 
                 _value = value;
-                OnChange?.Invoke(_value);
+                onChange?.Invoke(_value);
             }
         }
         public string[] Labels { get; private set; }
-        public Action<string> OnChange;
+        public Action<string> onChange;
 
         private Dictionary<string, Toggle> toggles;
         private bool nullable;
@@ -62,7 +62,7 @@ namespace VRGC
             }
         }
 
-        public UnityAction<bool> ChangeValue(string label)
+        private UnityAction<bool> ChangeValue(string label)
         {
             return value =>
             {

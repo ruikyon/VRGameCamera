@@ -18,11 +18,11 @@ namespace VRGC
 
         private void Awake()
         {
-            mode.OnChange += ChangeState;
+            mode.onChange += ChangeState;
             heightTargets = new Queue<int>();
 
             // UIとの紐づけ
-            angle.OnChange += ChangeAngle;
+            angle.onChange += ChangeAngle;
 
             height.onValueChanged.AddListener(value => { VRGameCamera.Instance.SetHeight(value); });
             degree.onValueChanged.AddListener(value => { VRGameCamera.Instance.SetDegree(value); });
@@ -62,7 +62,7 @@ namespace VRGC
             }
         }
 
-        public void ChangeState(string state)
+        private void ChangeState(string state)
         {
             switch (state)
             {
@@ -82,7 +82,7 @@ namespace VRGC
             }
         }
 
-        public void ChangeAngle(string angle)
+        private void ChangeAngle(string angle)
         {
             if (angle == null)
             {

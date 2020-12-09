@@ -30,9 +30,6 @@ namespace VRGC
 
         public static VRGameCamera Instance { get; private set; }
 
-        [SerializeField] private Vector3 backPosition = default;
-        [SerializeField] private Vector3 frontPosition = default;
-
         [SerializeField] private Transform target = default;
         [SerializeField] private Transform hand = default;
         [SerializeField] private float maxSpeed = default;
@@ -40,6 +37,8 @@ namespace VRGC
         private float heightOffset, degree, distance;
         private Camera cameraEntity;
         private CameraPosition state;
+        private Vector3 backPosition;
+        private Vector3 frontPosition;
 
         private void Awake()
         {
