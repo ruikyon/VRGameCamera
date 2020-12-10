@@ -139,7 +139,7 @@ namespace VRGC
         public void ResetPosition()
         {
             backPosition = Quaternion.Euler(degree, 0, 0) * (Vector3.back * distance);
-            frontPosition = Quaternion.Euler(degree, 0, 0) * (Vector3.forward * distance);
+            frontPosition = Quaternion.Euler(-degree, 0, 0) * (Vector3.forward * distance);
 
             if (state == CameraPosition.Hand)
             {
