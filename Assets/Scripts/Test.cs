@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class Test : MonoBehaviour
 {
+    [SerializeField] private Transform pointer;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private Toggle setting, angle;
     [SerializeField] private Toggle back, front, hand;
@@ -20,6 +21,11 @@ public class Test : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        var x = Input.GetAxisRaw("Horizontal");
+        var y = Input.GetAxisRaw("Vertical");
+        pointer.position += (new Vector3(x, y, 0)) * 0.01f;
+        return;
+
         BaseEventData data = new BaseEventData(eventSystem);
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -75,5 +81,10 @@ public class Test : MonoBehaviour
                 distance.value += 0.1f;
             }
         }
+    }
+
+    public void Logger()
+    {
+        Debug.Log("clicked");
     }
 }

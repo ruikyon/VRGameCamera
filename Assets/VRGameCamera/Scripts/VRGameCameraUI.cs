@@ -15,12 +15,14 @@ namespace VRGC
         [SerializeField] private RectTransform additionalUI = default;
         [SerializeField] private GameObject settingUI = default, angleUI = default;
 
+        private BoxCollider additionalUICollider;
         private Queue<int> heightTargets;
 
         private void Awake()
         {
             mode.onChange += ChangeState;
             heightTargets = new Queue<int>();
+            additionalUICollider = additionalUI.GetComponent<BoxCollider>();
 
             // UIとの紐づけ
             angle.onChange += ChangeAngle;
@@ -60,6 +62,13 @@ namespace VRGC
                 }
 
                 additionalUI.sizeDelta = tmp;
+
+                var center = additionalUICollider.center;
+                var size = additionalUICollider.size;
+                center.y = -tmp.y / 2;
+                size.y = tmp.y;
+                additionalUICollider.center = center;
+                additionalUICollider.size = size;
             }
         }
 
